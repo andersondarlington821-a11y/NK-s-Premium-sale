@@ -535,7 +535,7 @@
     // ============================================================
     
     // Python backend server URL (Flask runs on port 5000)
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = 'https://nk-s-premium-sale.onrender.com';
     
     // Get DOM elements
     const yamSelect = document.getElementById('yamTypeSelect');
@@ -794,7 +794,7 @@
         }
       } catch (error) {
         console.warn('⚠️ Python backend not reachable. Run: python app.py');
-        showTemporaryMessage('⚠️ Backend server not connected. Please start the server with: python app.py', 'warning');
+        showTemporaryMessage('⚠️ Cannot connect to the order service. Please try again later.', 'warning');
       }
     }
     
