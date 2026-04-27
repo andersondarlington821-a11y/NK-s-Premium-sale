@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nk's— Premium Yam Delivery</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ============================================================
+       CSS CUSTOM PROPERTIES
+    ============================================================ */
+    :root {
+      --yam-brown:   #7B3F00;
+      --yam-gold:    #D4920A;
+      --yam-cream:   #FDF6EC;
+      --yam-light:   #FAE8C8;
+      --yam-dark:    #2C1A0E;
+      --yam-green:   #3D7A3A;
+      --shadow-soft: 0 8px 32px rgba(123,63,0,0.12);
+      --shadow-hard: 0 4px 12px rgba(123,63,0,0.25);
+      --radius:      16px;
+      --radius-sm:   8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--yam-cream);
+      color: var(--yam-dark);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--yam-brown) 0%, #4A2200 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(212,146,10,0.25) 0%, transparent 70%);
+      top: -200px; right: -100px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--yam-gold); }
+
+    .nav-tag {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      padding: 60px 48px 80px;
+      max-width: 680px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212,146,10,0.25);
+      border: 1px solid var(--yam-gold);
+      color: var(--yam-gold);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--yam-gold);
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      font-weight: 300;
+      line-height: 1.6;
+      max-width: 480px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: -40px auto 60px;
+      padding: 0 24px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, var(--yam-light) 0%, #FFF8ED 100%);
+      padding: 28px 40px;
+      border-bottom: 1px solid rgba(123,63,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .card-icon {
+      width: 48px; height: 48px;
+      background: var(--yam-brown);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .card-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--yam-brown);
+    }
+
+    .card-header p {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .card-body { padding: 40px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--yam-brown);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #EDE0CE;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--yam-dark);
+      background: var(--yam-cream);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--yam-gold);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(212,146,10,0.12);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* Price Input Container */
+    .price-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .currency-symbol {
+      position: absolute;
+      left: 16px;
+      font-weight: 600;
+      color: var(--yam-brown);
+      font-size: 1.1rem;
+    }
+
+    .price-input-container input {
+      padding-left: 40px;
+    }
+
+    .price-suggestions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .suggestion-chip {
+      padding: 6px 12px;
+      background: var(--yam-light);
+      border: 1px solid #EDE0CE;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .suggestion-chip:hover {
+      background: var(--yam-gold);
+      color: white;
+      border-color: var(--yam-gold);
+    }
+
+    /* Price Range Indicator */
+    .price-range {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Quantity Stepper */
+    .quantity-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 2px solid #EDE0CE;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--yam-cream);
+      transition: border-color 0.2s;
+    }
+
+    .quantity-stepper:focus-within {
+      border-color: var(--yam-gold);
+      box-shadow: 0 0 0 4px rgba(212,146,10,0.12);
+    }
+
+    .qty-btn {
+      background: none;
+      border: none;
+      width: 48px; height: 52px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--yam-brown);
+      font-weight: 300;
+      transition: background 0.15s;
+    }
+    .qty-btn:hover { background: var(--yam-light); }
+
+    .qty-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--yam-dark);
+      padding: 0;
+      min-width: 0;
+      box-shadow: none;
+    }
+    .qty-input:focus { box-shadow: none; }
+
+    /* Order Summary */
+    .order-summary {
+      background: linear-gradient(135deg, var(--yam-brown) 0%, #4A2200 100%);
+      color: white;
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      margin-top: 8px;
+    }
+
+    .order-summary h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      opacity: 0.85;
+    }
+
+    .summary-line.total {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 12px;
+      margin-top: 6px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      opacity: 1;
+    }
+
+    .summary-line.total span:last-child { color: var(--yam-gold); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--yam-gold) 0%, #B8780A 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      box-shadow: 0 6px 20px rgba(212,146,10,0.4);
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(212,146,10,0.5);
+      filter: brightness(1.05);
+    }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: #e53e3e;
+      font-weight: 500;
+      display: none;
+    }
+
+    .form-group:has(.error) .error-msg { display: block; }
+    input.error, select.error, textarea.error {
+      border-color: #e53e3e;
+      background: #fff5f5;
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 16px 24px; }
+      .hero { padding: 40px 24px 64px; }
+      .card-body { padding: 24px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav>
+      <div class="logo">NK's<span>YAM</span> 👑</div>
+      <div class="nav-tag">Name Your Price • Fresh Delivery</div>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-badge">💰 Name Your Price • Farm Fresh</div>
+      <h1>Choose Your <em>Own Price</em><br>For Premium Yams</h1>
+      <p>You decide how much to pay per tuber! Pick your yam variety, set your budget, and we'll deliver the finest quality.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="order-card">
+      <div class="card-header">
+        <div class="card-icon">🛒</div>
+        <div>
+          <h2>Place Your Order</h2>
+          <p>Choose your yam and set your price per tuber</p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <form id="orderForm" novalidate>
+          <div class="form-grid">
+
+            <!-- Customer Name -->
+            <div class="form-group">
+              <label for="customerName">Your Full Name</label>
+              <input type="text" id="customerName" name="customerName" placeholder="e.g. Emeka Okafor" required/>
+              <span class="error-msg">Please enter your name</span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" placeholder="e.g. 08012345678" required/>
+              <span class="error-msg">Please enter a valid phone number</span>
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="form-group full-width">
+              <label for="address">Delivery Address</label>
+              <textarea id="address" name="address" placeholder="Enter your full delivery address (street, city, landmark...)" required></textarea>
+              <span class="error-msg">Please enter your delivery address</span>
+            </div>
+
+            <!-- Yam Type Selection -->
+            <div class="form-group full-width">
+              <label>Select Yam Type</label>
+              <select id="yamTypeSelect" required style="cursor: pointer;">
+                <option value="">-- Choose yam variety --</option>
+                <option value="Water Yam">🌿 Water Yam</option>
+                <option value="Yellow Yam">⭐ Yellow Yam</option>
+                <option value="White Yam">🤍 White Yam</option>
+              </select>
+              <span class="error-msg">Please select a yam type</span>
+            </div>
+
+            <!-- Custom Price Input -->
+            <div class="form-group full-width">
+              <label>💰 Your Price per Tuber (₦)</label>
+              <div class="price-input-container">
+                <span class="currency-symbol">₦</span>
+                <input 
+                  type="number" 
+                  id="pricePerTuber" 
+                  name="pricePerTuber" 
+                  placeholder="Enter your price (e.g., 1500)"
+                  min="1000" 
+                  max="3000"
+                  step="100"
+                  required
+                />
+              </div>
+              <div class="price-suggestions">
+                <span class="suggestion-chip" onclick="setSuggestedPrice(1000)">₦1,000 - Budget</span>
+                <span class="suggestion-chip" onclick="setSuggestedPrice(1500)">₦1,500 - Standard</span>
+                <span class="suggestion-chip" onclick="setSuggestedPrice(2000)">₦2,000 - Premium</span>
+                <span class="suggestion-chip" onclick="setSuggestedPrice(2500)">₦2,500 - Deluxe</span>
+                <span class="suggestion-chip" onclick="setSuggestedPrice(3000)">₦3,000 - Luxury</span>
+              </div>
+              <div class="price-range">
+                💡 Price range: ₦1,000 - ₦3,000 per tuber
+              </div>
+              <span class="error-msg" id="priceError">Please enter a valid price between ₦1,000 and ₦3,000</span>
+            </div>
+
+            <!-- Quantity Stepper -->
+            <div class="form-group full-width">
+              <label>Number of Tubers</label>
+              <div class="quantity-stepper">
+                <button type="button" class="qty-btn" onclick="decreaseQty()">−</button>
+                <input type="number" class="qty-input" id="quantity" name="quantity" value="1" min="1" max="500" readonly/>
+                <button type="button" class="qty-btn" onclick="increaseQty()">+</button>
+              </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="form-group full-width">
+              <label>Order Summary</label>
+              <div class="order-summary">
+                <h3>📋 Your Order</h3>
+                <div class="summary-line">
+                  <span>Yam Type</span>
+                  <span id="summaryType">— Not selected —</span>
+                </div>
+                <div class="summary-line">
+                  <span>Your Price per Tuber</span>
+                  <span id="summaryPrice">₦0</span>
+                </div>
+                <div class="summary-line">
+                  <span>Quantity</span>
+                  <span id="summaryQty">1 tuber</span>
+                </div>
+                <div class="summary-line total">
+                  <span>Total Amount</span>
+                  <span id="summaryTotal">₦0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group full-width">
+              <button type="submit" class="submit-btn" id="submitBtn">
+                🛒 Place My Order
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <strong>NK's YAM</strong> &mdash; Quality yams at your price 🌿<br/>
+    <small>© 2025 NK's YAM. All rights reserved.</small>
+  </footer>
+
+  <script>
+    // ============================================================
+    // PYTHON BACKEND CONNECTION - Updated for Flask server
+    // ============================================================
+    
+    // Python backend server URL (Flask runs on port 5000)
+    const API_BASE_URL = 'http://localhost:5000';
+    
+    // Get DOM elements
+    const yamSelect = document.getElementById('yamTypeSelect');
+    const priceInput = document.getElementById('pricePerTuber');
+    const quantityInput = document.getElementById('quantity');
+    const summaryType = document.getElementById('summaryType');
+    const summaryPrice = document.getElementById('summaryPrice');
+    const summaryQty = document.getElementById('summaryQty');
+    const summaryTotal = document.getElementById('summaryTotal');
+
+    // Price validation limits (must match Python backend: MIN_PRICE=1000, MAX_PRICE=3000)
+    const MIN_PRICE = 1000;
+    const MAX_PRICE = 3000;
+
+    // Set suggested price from chips
+    function setSuggestedPrice(price) {
+      priceInput.value = price;
+      validateAndUpdatePrice();
+    }
+
+    // Validate price and update summary
+    function validateAndUpdatePrice() {
+      let price = parseFloat(priceInput.value);
+      
+      // Check if price is valid
+      if (isNaN(price)) {
+        document.getElementById('priceError').style.display = 'block';
+        return false;
+      }
+      
+      if (price < MIN_PRICE) {
+        priceInput.value = MIN_PRICE;
+        price = MIN_PRICE;
+        showTemporaryMessage(`Minimum price is ₦${MIN_PRICE.toLocaleString('en-NG')}`, 'warning');
+      } else if (price > MAX_PRICE) {
+        priceInput.value = MAX_PRICE;
+        price = MAX_PRICE;
+        showTemporaryMessage(`Maximum price is ₦${MAX_PRICE.toLocaleString('en-NG')}`, 'warning');
+      }
+      
+      document.getElementById('priceError').style.display = 'none';
+      updateSummary();
+      return true;
+    }
+
+    // Update order summary
+    function updateSummary() {
+      const yamName = yamSelect.value || '— Not selected —';
+      let price = parseFloat(priceInput.value) || 0;
+      const qty = parseInt(quantityInput.value) || 1;
+      
+      // Ensure price is within limits
+      if (price < MIN_PRICE) price = 0;
+      if (price > MAX_PRICE) price = MAX_PRICE;
+      
+      const total = price * qty;
+      
+      summaryType.textContent = yamName;
+      summaryPrice.textContent = price > 0 ? `₦${price.toLocaleString('en-NG')}` : '₦0';
+      summaryQty.textContent = `${qty} tuber${qty === 1 ? '' : 's'}`;
+      summaryTotal.textContent = `₦${total.toLocaleString('en-NG')}`;
+    }
+
+    // Quantity controls
+    function increaseQty() {
+      let qty = parseInt(quantityInput.value);
+      if (qty < 500) {
+        quantityInput.value = qty + 1;
+        updateSummary();
+      }
+    }
+
+    function decreaseQty() {
+      let qty = parseInt(quantityInput.value);
+      if (qty > 1) {
+        quantityInput.value = qty - 1;
+        updateSummary();
+      }
+    }
+
+    // Show temporary message
+    function showTemporaryMessage(message, type = 'info') {
+      const existingMsg = document.querySelector('.temp-message');
+      if (existingMsg) existingMsg.remove();
+      
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'temp-message';
+      msgDiv.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: ${type === 'warning' ? '#FF9800' : '#4CAF50'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+      `;
+      msgDiv.textContent = message;
+      document.body.appendChild(msgDiv);
+      
+      setTimeout(() => msgDiv.remove(), 3000);
+    }
+
+    // Form validation
+    function validateForm() {
+      let isValid = true;
+      
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const yamType = yamSelect.value;
+      const price = parseFloat(priceInput.value);
+      const qty = parseInt(quantityInput.value);
+      
+      // Name validation
+      if (name.length < 2) {
+        showFieldError('customerName', true);
+        isValid = false;
+      } else {
+        showFieldError('customerName', false);
+      }
+      
+      // Phone validation
+      if (phone.length < 7 || !/^[0-9]+$/.test(phone)) {
+        showFieldError('phone', true);
+        isValid = false;
+      } else {
+        showFieldError('phone', false);
+      }
+      
+      // Address validation
+      if (address.length < 5) {
+        showFieldError('address', true);
+        isValid = false;
+      } else {
+        showFieldError('address', false);
+      }
+      
+      // Yam type validation
+      if (!yamType) {
+        yamSelect.classList.add('error');
+        isValid = false;
+      } else {
+        yamSelect.classList.remove('error');
+      }
+      
+      // Price validation
+      if (isNaN(price) || price < MIN_PRICE || price > MAX_PRICE) {
+        document.getElementById('priceError').style.display = 'block';
+        priceInput.classList.add('error');
+        isValid = false;
+      } else {
+        document.getElementById('priceError').style.display = 'none';
+        priceInput.classList.remove('error');
+      }
+      
+      return isValid;
+    }
+    
+    function showFieldError(fieldId, show) {
+      const field = document.getElementById(fieldId);
+      if (show) {
+        field.classList.add('error');
+      } else {
+        field.classList.remove('error');
+      }
+    }
+
+    // ============================================================
+    // FORM SUBMISSION - Sends order to Python Backend
+    // ============================================================
+    
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        showTemporaryMessage('Please fix the errors above', 'warning');
+        return;
+      }
+      
+      // Prepare order data for Python backend
+      const orderData = {
+        customerName: document.getElementById('customerName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        deliveryAddress: document.getElementById('address').value.trim(),
+        yamType: yamSelect.value,
+        pricePerTuber: parseFloat(priceInput.value),
+        quantity: parseInt(quantityInput.value),
+        totalPrice: parseFloat(priceInput.value) * parseInt(quantityInput.value)
+      };
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Placing Order...';
+      
+      try {
+        // Send POST request to Python Flask backend
+        // Python server runs on http://localhost:5000
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        // Check if order was successful
+        if (response.ok && result.success) {
+          // Redirect to confirmation page with order ID
+          window.location.href = `${API_BASE_URL}/confirmation.html?orderId=${result.orderId}`;
+        } else {
+          // Show error message from server
+          showTemporaryMessage(result.message || 'Order failed. Please try again.', 'warning');
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🛒 Place My Order';
+        }
+      } catch (error) {
+        // Handle network errors (server not running)
+        console.error('Connection error:', error);
+        showTemporaryMessage('⚠️ Cannot connect to server. Make sure Python backend is running (python app.py)', 'warning');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🛒 Place My Order';
+      }
+    });
+    
+    // Event listeners for real-time updates
+    priceInput.addEventListener('input', validateAndUpdatePrice);
+    yamSelect.addEventListener('change', updateSummary);
+    quantityInput.addEventListener('input', updateSummary);
+    
+    // Add animation style for messages
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Initialize the summary on page load
+    updateSummary();
+    
+    // Optional: Check if backend is reachable on page load
+    async function checkBackendConnection() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        const data = await response.json();
+        if (data.status === 'OK') {
+          console.log('✅ Connected to Python backend successfully!');
+        }
+      } catch (error) {
+        console.warn('⚠️ Python backend not reachable. Run: python app.py');
+        showTemporaryMessage('⚠️ Backend server not connected. Please start the server with: python app.py', 'warning');
+      }
+    }
+    
+    // Check backend connection when page loads (optional, remove if you want)
+    setTimeout(checkBackendConnection, 1000);
+  </script>
+</body>
+</html>
