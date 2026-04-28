@@ -266,9 +266,13 @@
   </div>
 
   <script>
+    // ============================================================
+    // CONFIGURATION – Your Render Backend URL
+    // ============================================================
+    const API_BASE = 'https://nk-s-premium-sale.onrender.com';
+    
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId');
-    const API_BASE = 'https://nk-s-premium-sale.onrender.com';
 
     async function loadOrderConfirmation() {
       if (!orderId) {
@@ -287,6 +291,7 @@
         const order = data.order;
         displayConfirmation(order);
       } catch (error) {
+        console.error('Confirmation error:', error);
         displayError();
       }
     }
