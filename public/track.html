@@ -181,6 +181,9 @@
   </div>
 
   <script>
+    // ============================================================
+    // CONFIGURATION – Your Render Backend URL
+    // ============================================================
     const API_BASE = 'https://nk-s-premium-sale.onrender.com';
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -210,7 +213,8 @@
 
         displayOrderStatus(data.order);
       } catch (error) {
-        showError('Unable to fetch order. Please try again.');
+        console.error('Tracking error:', error);
+        showError('Unable to fetch order. Please try again later.');
       }
     }
 
