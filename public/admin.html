@@ -310,18 +310,37 @@
   </div>
 
   <script>
+    // ============================================================
+    // SECURITY: Admin Token and Password Protection
+    // ============================================================
+    
+    // Admin token for API authentication (must match ADMIN_TOKEN on Render)
     const ADMIN_TOKEN = '7Xk9mP2nQ8rS5tU3vW7yZ4bC6dF8gH1jL9';
-    // Simple password protection
-    const ADMIN_PASSWORD = 'Nwauwankeiruka1981'; // Change this to something strong
+    
+    // Simple password protection for page access
+    const ADMIN_PASSWORD = 'Nwauwankeiruka1981';
     const userPassword = prompt('Enter admin password:');
     
     if (userPassword !== ADMIN_PASSWORD) {
       document.body.innerHTML = '<h1 style="text-align:center; margin-top:50px;">🔒 Access Denied</h1>';
       throw new Error('Unauthorized access');
     }
-    // Python backend URL
+    
+    // ============================================================
+    // CONFIGURATION
+    // ============================================================
+    
+    // Your Render backend URL
     const API_BASE_URL = 'https://nk-s-premium-sale.onrender.com';
     let allOrders = [];
+
+    // Helper function to get headers with admin token
+    function getAuthHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': ADMIN_TOKEN
+      };
+    }
 
     // Show toast notification
     function showToast(message, isError = false) {
@@ -337,7 +356,11 @@
       try {
         showLoading();
         
-        const response = await fetch(`${API_BASE_URL}/api/orders`);
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
+        
         const data = await response.json();
         
         if (data.success) {
@@ -346,11 +369,11 @@
           displayOrders();
           showToast('✅ Orders refreshed successfully');
         } else {
-          throw new Error('Failed to load orders');
+          throw new Error(data.message || 'Failed to load orders');
         }
       } catch (error) {
         console.error('Error:', error);
-        showError('⚠️ Cannot connect to server. Make sure Python backend is running (python app.py)');
+        showError('⚠️ Cannot connect to the order service. Please check your connection or try again later.');
       }
     }
 
@@ -379,12 +402,10 @@
 
       let filtered = [...allOrders];
 
-      // Apply status filter
       if (statusFilter !== 'all') {
         filtered = filtered.filter(o => o.status === statusFilter);
       }
 
-      // Apply search filter
       if (searchTerm) {
         filtered = filtered.filter(o => 
           (o.customerName && o.customerName.toLowerCase().includes(searchTerm)) ||
@@ -402,7 +423,6 @@
         return;
       }
 
-      // Build table HTML
       let html = `
         <table>
           <thead>
@@ -450,58 +470,41 @@
 
       html += `
           </tbody>
-         </table>
+        </table>
       `;
 
       document.getElementById('ordersContent').innerHTML = html;
     }
 
-    // ============================================================
-    // DELETE ORDER FUNCTION - This removes from orders.json
-    // ============================================================
+    // Delete order
     async function deleteOrder(orderId) {
-      // Confirm with user before deleting
       const confirmed = confirm(`⚠️ Are you sure you want to delete order #${orderId}?\n\nThis action cannot be undone!`);
-      
-      if (!confirmed) {
-        return;
-      }
+      if (!confirmed) return;
       
       try {
-        // Send DELETE request to Python backend
         const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: getAuthHeaders()
         });
         
         const data = await response.json();
         
         if (data.success) {
-          // Show success message
-          showToast(`✅ Order #${orderId} deleted successfully from orders.json`);
-          
-          // Reload the orders list (this will fetch fresh data from orders.json)
+          showToast(`✅ Order #${orderId} deleted successfully`);
           await loadOrders();
-          
-          // Also reload statistics
           updateStatistics();
         } else {
           showToast(`❌ Failed to delete order #${orderId}: ${data.message}`, true);
         }
       } catch (error) {
         console.error('Delete error:', error);
-        showToast('⚠️ Error deleting order. Make sure server is running.', true);
+        showToast('⚠️ Error deleting order. Please try again.', true);
       }
     }
 
-    // ============================================================
-    // UPDATE ORDER STATUS - This updates orders.json
-    // ============================================================
+    // Update order status
     async function updateStatus(orderId) {
       const newStatus = prompt('Enter new status:\npending\nconfirmed\ndispatched\ndelivered\ncancelled', 'confirmed');
-      
       if (!newStatus) return;
       
       const validStatuses = ['pending', 'confirmed', 'dispatched', 'delivered', 'cancelled'];
@@ -513,7 +516,7 @@
       try {
         const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ status: newStatus })
         });
         
@@ -521,11 +524,12 @@
         
         if (data.success) {
           showToast(`✅ Order #${orderId} status updated to ${newStatus}`);
-          loadOrders(); // Reload the list
+          loadOrders();
         } else {
           showToast('❌ Failed to update status', true);
         }
       } catch (error) {
+        console.error('Update error:', error);
         showToast('⚠️ Error updating status', true);
       }
     }
