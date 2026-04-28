@@ -9,6 +9,7 @@ Using direct Green API calls with requests library
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from functools import wraps  # ADDED for admin authentication
 import json
 import os
 import uuid
@@ -21,17 +22,46 @@ import threading
 # GREEN API WHATSAPP CONFIGURATION
 # ============================================================
 
-# Your Green API credentials (the sender WhatsApp number)
-ID_INSTANCE = '7107601889'
-API_TOKEN_INSTANCE = '5e85cf0d650b451cb3ea6c15bfdde997ae51787937b149c198'
+# Use environment variables for security (Render will provide these)
+ID_INSTANCE = os.environ.get('GREEN_API_ID', '7107601889')
+API_TOKEN_INSTANCE = os.environ.get('GREEN_API_TOKEN', '5e85cf0d650b451cb3ea6c15bfdde997ae51787937b149c198')
 API_URL = f'https://7107.api.greenapi.com/waInstance{ID_INSTANCE}/sendMessage/{API_TOKEN_INSTANCE}'
 
 # The WhatsApp number that will RECEIVE order notifications (your personal number)
-# Format: country code without '+' + '@c.us'
-ADMIN_WHATSAPP_NUMBER = '2347034547179@c.us'  # 👈 Change to your personal WhatsApp
+ADMIN_WHATSAPP_NUMBER = os.environ.get('ADMIN_WHATSAPP', '2347034547179@c.us')
 
 # Enable/disable WhatsApp notifications
 WHATSAPP_ENABLED = True
+
+# ============================================================
+# ADMIN AUTHENTICATION - NEW SECTION
+# ============================================================
+
+# Get admin token from environment variable (set this in Render dashboard)
+# Generate a strong token: you can use python -c "import secrets; print(secrets.token_urlsafe(32))"
+ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', 'your-super-secret-admin-token-change-this')
+
+def admin_required(f):
+    """Decorator to protect admin-only routes"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Check for token in request headers
+        token = request.headers.get('X-Admin-Token')
+        
+        if not token:
+            return jsonify({
+                'success': False, 
+                'message': 'Admin token required. Please provide X-Admin-Token header.'
+            }), 401
+        
+        if token != ADMIN_TOKEN:
+            return jsonify({
+                'success': False, 
+                'message': 'Invalid admin token. Access denied.'
+            }), 401
+        
+        return f(*args, **kwargs)
+    return decorated
 
 # ============================================================
 # APP CONFIGURATION
@@ -170,7 +200,7 @@ def validate_order(data):
     return errors
 
 # ============================================================
-# API ROUTES
+# PUBLIC API ROUTES (no authentication required)
 # ============================================================
 
 @app.route('/')
@@ -185,7 +215,7 @@ def serve_static(filename):
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - public"""
     return jsonify({
         'status': 'OK',
         'message': 'NKs Yams Server with WhatsApp',
@@ -193,25 +223,9 @@ def health_check():
         'whatsapp_enabled': WHATSAPP_ENABLED
     })
 
-@app.route('/api/orders', methods=['GET'])
-def get_all_orders():
-    """Get all orders (admin dashboard)"""
-    orders = load_orders()
-    orders.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
-    return jsonify({'success': True, 'count': len(orders), 'orders': orders})
-
-@app.route('/api/orders/<order_id>', methods=['GET'])
-def get_single_order(order_id):
-    """Get a specific order by ID"""
-    orders = load_orders()
-    order = next((o for o in orders if o.get('orderId') == order_id.upper()), None)
-    if order:
-        return jsonify({'success': True, 'order': order})
-    return jsonify({'success': False, 'message': 'Order not found'}), 404
-
 @app.route('/api/orders', methods=['POST'])
 def create_new_order():
-    """Create a new order (customer submits form)"""
+    """Create a new order (customer submits form) - PUBLIC"""
     try:
         data = request.get_json()
         
@@ -263,9 +277,31 @@ def create_new_order():
         print(f"❌ Error creating order: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/api/orders/<order_id>', methods=['GET'])
+def get_single_order(order_id):
+    """Get a specific order by ID - PUBLIC (for customer tracking)"""
+    orders = load_orders()
+    order = next((o for o in orders if o.get('orderId') == order_id.upper()), None)
+    if order:
+        return jsonify({'success': True, 'order': order})
+    return jsonify({'success': False, 'message': 'Order not found'}), 404
+
+# ============================================================
+# PROTECTED ADMIN API ROUTES (require authentication)
+# ============================================================
+
+@app.route('/api/orders', methods=['GET'])
+@admin_required
+def get_all_orders():
+    """Get all orders (admin dashboard) - PROTECTED"""
+    orders = load_orders()
+    orders.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
+    return jsonify({'success': True, 'count': len(orders), 'orders': orders})
+
 @app.route('/api/orders/<order_id>/status', methods=['POST'])
+@admin_required
 def update_order_status(order_id):
-    """Update order status (admin dashboard)"""
+    """Update order status (admin dashboard) - PROTECTED"""
     data = request.get_json()
     new_status = data.get('status')
     
@@ -287,8 +323,9 @@ def update_order_status(order_id):
     return jsonify({'success': False, 'message': 'Order not found'}), 404
 
 @app.route('/api/orders/<order_id>', methods=['DELETE'])
+@admin_required
 def delete_order(order_id):
-    """Delete an order (admin dashboard)"""
+    """Delete an order (admin dashboard) - PROTECTED"""
     orders = load_orders()
     order_id = order_id.upper()
     original_count = len(orders)
@@ -325,9 +362,11 @@ if __name__ == '__main__':
     print(f"   • Price Range: ₦{MIN_PRICE:,} - ₦{MAX_PRICE:,}")
     print(f"   • WhatsApp Notifications: {'ENABLED' if WHATSAPP_ENABLED else 'DISABLED'}")
     print(f"   • Receiver Number: {ADMIN_WHATSAPP_NUMBER}")
+    print(f"\n🔐 Admin Authentication: ENABLED")
+    print(f"   • Admin Token: {ADMIN_TOKEN}")
     print(f"\n📍 Access:")
     print(f"   • Customer Page: http://localhost:5000")
-    print(f"   • Admin Dashboard: http://localhost:5000/admin.html")
+    print(f"   • Admin Dashboard: http://localhost:5000/admin.html (requires token)")
     print(f"   • Track Order: http://localhost:5000/track.html")
     print(f"   • Health Check: http://localhost:5000/health")
     print("\n" + "="*50)
@@ -335,4 +374,3 @@ if __name__ == '__main__':
     print("💡 WhatsApp notifications will be sent when orders are placed.\n")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
-    app = Flask(__name__)
