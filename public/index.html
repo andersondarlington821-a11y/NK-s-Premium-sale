@@ -531,10 +531,9 @@
 
   <script>
     // ============================================================
-    // PYTHON BACKEND CONNECTION - Updated for Flask server
+    // CONFIGURATION – Your Render Backend URL
     // ============================================================
-    
-    // Python backend server URL (Flask runs on port 5000)
+    // IMPORTANT: Replace with your actual Render URL (no trailing slash)
     const API_BASE_URL = 'https://nk-s-premium-sale.onrender.com';
     
     // Get DOM elements
@@ -546,7 +545,7 @@
     const summaryQty = document.getElementById('summaryQty');
     const summaryTotal = document.getElementById('summaryTotal');
 
-    // Price validation limits (must match Python backend: MIN_PRICE=1000, MAX_PRICE=3000)
+    // Price validation limits
     const MIN_PRICE = 1000;
     const MAX_PRICE = 3000;
 
@@ -560,7 +559,6 @@
     function validateAndUpdatePrice() {
       let price = parseFloat(priceInput.value);
       
-      // Check if price is valid
       if (isNaN(price)) {
         document.getElementById('priceError').style.display = 'block';
         return false;
@@ -587,7 +585,6 @@
       let price = parseFloat(priceInput.value) || 0;
       const qty = parseInt(quantityInput.value) || 1;
       
-      // Ensure price is within limits
       if (price < MIN_PRICE) price = 0;
       if (price > MAX_PRICE) price = MAX_PRICE;
       
@@ -650,9 +647,7 @@
       const address = document.getElementById('address').value.trim();
       const yamType = yamSelect.value;
       const price = parseFloat(priceInput.value);
-      const qty = parseInt(quantityInput.value);
       
-      // Name validation
       if (name.length < 2) {
         showFieldError('customerName', true);
         isValid = false;
@@ -660,7 +655,6 @@
         showFieldError('customerName', false);
       }
       
-      // Phone validation
       if (phone.length < 7 || !/^[0-9]+$/.test(phone)) {
         showFieldError('phone', true);
         isValid = false;
@@ -668,7 +662,6 @@
         showFieldError('phone', false);
       }
       
-      // Address validation
       if (address.length < 5) {
         showFieldError('address', true);
         isValid = false;
@@ -676,7 +669,6 @@
         showFieldError('address', false);
       }
       
-      // Yam type validation
       if (!yamType) {
         yamSelect.classList.add('error');
         isValid = false;
@@ -684,7 +676,6 @@
         yamSelect.classList.remove('error');
       }
       
-      // Price validation
       if (isNaN(price) || price < MIN_PRICE || price > MAX_PRICE) {
         document.getElementById('priceError').style.display = 'block';
         priceInput.classList.add('error');
@@ -707,7 +698,7 @@
     }
 
     // ============================================================
-    // FORM SUBMISSION - Sends order to Python Backend
+    // FORM SUBMISSION - Sends order to Render Backend
     // ============================================================
     
     document.getElementById('orderForm').addEventListener('submit', async function(e) {
@@ -718,7 +709,6 @@
         return;
       }
       
-      // Prepare order data for Python backend
       const orderData = {
         customerName: document.getElementById('customerName').value.trim(),
         phone: document.getElementById('phone').value.trim(),
@@ -734,8 +724,6 @@
       submitBtn.textContent = '⏳ Placing Order...';
       
       try {
-        // Send POST request to Python Flask backend
-        // Python server runs on http://localhost:5000
         const response = await fetch(`${API_BASE_URL}/api/orders`, {
           method: 'POST',
           headers: { 
@@ -747,31 +735,27 @@
         
         const result = await response.json();
         
-        // Check if order was successful
         if (response.ok && result.success) {
-          // Redirect to confirmation page with order ID
-          window.location.href = `${API_BASE_URL}/confirmation.html?orderId=${result.orderId}`;
+          window.location.href = `./confirmation.html?orderId=${result.orderId}`;
         } else {
-          // Show error message from server
           showTemporaryMessage(result.message || 'Order failed. Please try again.', 'warning');
           submitBtn.disabled = false;
           submitBtn.textContent = '🛒 Place My Order';
         }
       } catch (error) {
-        // Handle network errors (server not running)
         console.error('Connection error:', error);
-        showTemporaryMessage('⚠️ Cannot connect to server. Make sure Python backend is running (python app.py)', 'warning');
+        showTemporaryMessage('⚠️ Unable to connect to order service. Please try again later.', 'warning');
         submitBtn.disabled = false;
         submitBtn.textContent = '🛒 Place My Order';
       }
     });
     
-    // Event listeners for real-time updates
+    // Event listeners
     priceInput.addEventListener('input', validateAndUpdatePrice);
     yamSelect.addEventListener('change', updateSummary);
     quantityInput.addEventListener('input', updateSummary);
     
-    // Add animation style for messages
+    // Add animation style
     const style = document.createElement('style');
     style.textContent = `
       @keyframes slideIn {
@@ -781,25 +765,23 @@
     `;
     document.head.appendChild(style);
     
-    // Initialize the summary on page load
+    // Initialize summary
     updateSummary();
     
-    // Optional: Check if backend is reachable on page load
+    // Check backend connection silently (no toast on error)
     async function checkBackendConnection() {
       try {
         const response = await fetch(`${API_BASE_URL}/health`);
         const data = await response.json();
         if (data.status === 'OK') {
-          console.log('✅ Connected to Python backend successfully!');
+          console.log('✅ Backend connected successfully');
         }
       } catch (error) {
-        console.warn('⚠️ Python backend not reachable. Run: python app.py');
-        showTemporaryMessage('⚠️ Cannot connect to the order service. Please try again later.', 'warning');
+        console.warn('⚠️ Backend connection failed');
       }
     }
     
-    // Check backend connection when page loads (optional, remove if you want)
-    setTimeout(checkBackendConnection, 1000);
+    checkBackendConnection();
   </script>
 </body>
 </html>
